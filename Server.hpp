@@ -39,10 +39,5 @@ class Server
         void _handleDisconnection(int fd);
 };
 
-struct sockaddr_in address; // Declaración
-
-address.sin_family = AF_INET;         // IPv4
-address.sin_addr.s_addr = INADDR_ANY; // Aceptar cualquier IP del PC
-address.sin_port = htons(port);       // El puerto convertido a formato de red
 
 #endif
