@@ -8,6 +8,8 @@
 #include <netinet/in.h>
 #include <fcntl.h>
 #include <poll.h>
+#include <string.h>
+#include <unistd.h>
 
 
 
@@ -20,6 +22,7 @@ class Server
 
         void start();
         void stop(); //Cierra sockets limpiamente.
+        
     
     
     private:

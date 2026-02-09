@@ -11,6 +11,9 @@ class Client
         const std::string &getNick(); //recibimos por referencia constante para evitar que el ordenador haga una copia del
         const std::string &getUsername();
         int getFd();
+        void appendBuffer(std::string str) {_buffer += str;}
+        std::string getBuffer()const {return _buffer; }
+        void clearBuffer() {_buffer.clear();}
 
 
     private:
@@ -18,6 +21,7 @@ class Client
     //identificacion de red
         int _fd;
         std::string _hostname;
+        std::string _buffer;
 
     //identificacion de IRC
         std::string _nickname;

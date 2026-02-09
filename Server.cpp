@@ -36,7 +36,7 @@ void Server::start()
     {
         if (poll(&_fds[0], _fds.size(), -1) == -1)
             break;
-        for (int i = fds.size() -1; i >0 ; i--)
+        for (int i = _fds.size() -1; i >0 ; i--)
         {
             if (_fds[i].revents & POLLIN)
             {
@@ -53,7 +53,7 @@ void Server::start()
 
 void Server::_acceptNewConnection()
 {
-    struct sockadd_in client_addr;
+    struct sockaddr_in client_addr;
     socklen_t addr_len = sizeof(client_addr);
 
 
@@ -79,7 +79,7 @@ void Server::_receiveData(int fd)
     char buffer[512];
     memset(buffer, 0, sizeof(buffer));
     int  bytes_read = recv(fd, buffer, sizeof(buffer) - 1, 0);
-    if ( bytes_read() <= 0) // se ha desconectado o error
+    if (bytes_read <= 0) // se ha desconectado o error
     {
         _handleDisconnection(fd);
     }
