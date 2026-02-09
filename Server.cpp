@@ -20,4 +20,97 @@ Server::Server(int port, std::string password) : _port(port), _password(password
     address.sin_port = htons(_port);
     bind(this->_server_fd, (struct sockaddr *)&address, sizeof(address));
     listen(this->_server_fd, 10);
+
+
+    struct pollfd server_pfd;
+    server_pfd.fd = _server_fd;
+    server_pfd.events = POLLIN;
+    server_pfd.revents = 0;
+    _fds.push_back(server_pfd);
+}
+
+
+void Server::start()
+{
+    while (1)
+    {
+        if (poll(&_fds[0], _fds.size(), -1) == -1)
+            break;
+        for (int i = fds.size() -1; i >0 ; i--)
+        {
+            if (_fds[i].revents & POLLIN)
+            {
+                if (_fds[i].fd == _server_fd) //hay actividad
+                    _acceptNewConnection(); //socket maestro
+                else
+                    _receiveData(_fds[i].fd); //cliente que ya existia
+            }
+            
+        }
+    }
+}
+
+
+void Server::_acceptNewConnection()
+{
+    struct sockadd_in client_addr;
+    socklen_t addr_len = sizeof(client_addr);
+
+
+    //aceptar conexion y obtener nuevo FD
+    int client_fd = accept(_server_fd, (struct sockaddr *)&client_addr, &addr_len);
+    if (client_fd == -1)
+        return;
+    //hacer que el socket del cliente no sea bloqueante
+    fcntl(client_fd, F_SETFL, O_NONBLOCK);
+
+
+    struct pollfd client_pfd;
+    client_pfd.fd = client_fd;
+    client_pfd.events = POLLIN;
+    client_pfd.revents = 0;
+
+    _clients[client_fd] = new Client(client_fd);
+    std::cout << "Nuevo cliente conectado en FD" << client_fd << std::endl;
+}
+
+void Server::_receiveData(int fd)
+{
+    char buffer[512];
+    memset(buffer, 0, sizeof(buffer));
+    int  bytes_read = recv(fd, buffer, sizeof(buffer) - 1, 0);
+    if ( bytes_read() <= 0) // se ha desconectado o error
+    {
+        _handleDisconnection(fd);
+    }
+    else
+    {
+        buffer[bytes_read] = '\0';
+        _clients[fd]->appendBuffer(buffer);
+
+        if (_clients[fd]->getBuffer().find("\n") != std::string::npos)
+        {
+            _processCommand(_clients[fd]);
+        }
+    }
+}
+
+void Server::_handleDisconnection(int fd)
+{
+    std::cout << "EL usuario con el FD" << fd << "se ha desconectado\n";
+    for (size_t i= 0; i < _fds.size(); i++)
+    {
+        if (_fds[i].fd == fd)
+        {
+            _fds.erase(_fds.begin() + i);
+            break;
+        }
+    }
+    if (_clients.count(fd))
+    {
+        delete _clients[fd];
+        _clients.erase(fd);
+    }
+    close(fd);
+
 }

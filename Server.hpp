@@ -7,6 +7,7 @@
 #include "Client.hpp"
 #include <netinet/in.h>
 #include <fcntl.h>
+#include <poll.h>
 
 
 
@@ -38,6 +39,8 @@ class Server
         void _receiveData(int fd);
         void _handleDisconnection(int fd);
 };
+
+
 
 
 #endif
