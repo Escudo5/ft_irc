@@ -7,7 +7,7 @@
 
 - [ ] Punto de entrada, gestionar argumentos (puerto y password) y arrancar el motor.
 - [ ] Infraestructura de red, Crear socket, ponerlo en modo no-bloqueante usando `fcntl()`y empezar a escuchar.
-- [ ] Bucle de eventos. implementar el uncio `poll()` permitido para vigilar todos los FD.
+- [ ] Bucle de eventos. implementar el unico `poll()` permitido para vigilar todos los FD.
 - [ ] Gestion de clientes: Crear una ficha (objeto) para cada persona que se conecte para guardar el estado y su buffer de mensaje.
 
 
