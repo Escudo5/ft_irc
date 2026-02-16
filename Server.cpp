@@ -112,5 +112,34 @@ void Server::_handleDisconnection(int fd)
         _clients.erase(fd);
     }
     close(fd);
+}
 
+
+//Mientras haya \n tenemos comando completo
+// Limoiamos comandos de chars invisibles
+//actualizamos el buffer con lo que sobra
+
+
+void Server::_processCommand(Client *client)
+{
+    std::string raw_data = client->getBuffer();
+    size_t pos;
+
+    while ((pos = raw_data.find("\n")) != std::string::npos)
+    {
+        std::string command = raw_data.substr(0, pos);
+        if (!command.empty() && command[command.size() -1] == '\r')
+            command.erase(command.size() - 1);
+        std::cout << "Ejecutando: " << command << std::endl;
+
+
+        //meter logica de comandos
+        //if(command == "PASS")
+
+
+        
+        raw_data.erase(0, pos + 1);
+        //añadir funcion setBuffer.
+        client->setBuffer(raw_data);
+    }
 }
