@@ -134,7 +134,15 @@ void Server::_processCommand(Client *client)
 
 
         //meter logica de comandos
-        //if(command == "PASS")
+        std::stringstream ss(command);
+        std::string tokens;
+        std::string args;
+        
+        ss >> tokens;
+        if (tokens == "PASS")
+            //seguir extrayendo contraseña
+        if (tokens == "NICK")
+            //sacar apodo
 
 
         
@@ -143,3 +151,8 @@ void Server::_processCommand(Client *client)
         client->setBuffer(raw_data);
     }
 }
+
+
+//gestionar comandos que usen ":"
+//comandos cona rgumentos vacios
+// guardar argumentos en estructura de cliente

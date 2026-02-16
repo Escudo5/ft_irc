@@ -14,6 +14,7 @@ class Client
         void appendBuffer(std::string str) {_buffer += str;}
         std::string getBuffer()const {return _buffer; }
         void clearBuffer() {_buffer.clear();}
+        Client* setBuffer(std::string raw_data);
 
 
     private:

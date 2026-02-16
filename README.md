@@ -34,3 +34,19 @@ Tambien tenemos un vector con pollfd
 
 # ** El `server_fd` tiene que ser vigilado por `poll()`**
 Si fuera independiente hay que vigilarlo constantemente y gasta CPU.
+
+
+
+
+## Uso de stringstream para tokenizar comandos
+
+```c++
+#include <sstream>
+
+std::string frase = "NICK paco123";
+std::stringstream ss(frase); // 1. Cargamos
+std::string palabra;
+
+ss >> palabra; // Ahora palabra vale "NICK"
+ss >> palabra; // Ahora palabra vale "paco123"
+```
