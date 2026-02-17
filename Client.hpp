@@ -15,6 +15,8 @@ class Client
         std::string getBuffer()const {return _buffer; }
         void clearBuffer() {_buffer.clear();}
         Client* setBuffer(std::string raw_data);
+        std::string setNick(std::string nickname);
+        void setAuthenticated(bool status);
 
 
     private:

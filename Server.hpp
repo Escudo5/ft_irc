@@ -42,6 +42,7 @@ class Server
         void _acceptNewConnection();
         void _receiveData(int fd);
         void _handleDisconnection(int fd);
+        void _processCommand(Client *client);
 };
 
 

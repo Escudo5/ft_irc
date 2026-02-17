@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include "Client.hpp"
 
 
 
@@ -139,13 +140,18 @@ void Server::_processCommand(Client *client)
         std::string args;
         
         ss >> tokens;
-        if (tokens == "PASS")
+        if (tokens == "PASS" && ss >> args)
+        {
+            if (args == _password)
+                setAuthenticated(true)
+        }
             //seguir extrayendo contraseña
         if (tokens == "NICK")
-            //sacar apodo
+        {
+            
+        }
 
-
-        
+        if (ss >> args)
         raw_data.erase(0, pos + 1);
         //añadir funcion setBuffer.
         client->setBuffer(raw_data);
