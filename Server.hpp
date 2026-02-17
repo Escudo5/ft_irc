@@ -17,10 +17,11 @@
 
 struct Command
 {
+    std::string prefix; // :prefix!user@host...
     std::string name; //PASS, NICK ...
     std::vector<std::string> params; //args
     std::string trailing; //"holamundo" lo q va despues de ":"
-}
+};
 class Client;
 class Server
 {
@@ -49,7 +50,20 @@ class Server
         void _acceptNewConnection();
         void _receiveData(int fd);
         void _handleDisconnection(int fd);
+        void _handleDisconnection(int fd);
         bool _parseCommand(const std::string &line, Command &cmd);
+
+        // -- Execution Logic --
+        typedef void (Server::*CommandHandler)(Client *client, const Command &cmd);
+        std::map<std::string, CommandHandler> _commands;
+
+        void _initCommands(); // Rellena el mapa
+        void _executeCommand(const Command &cmd, Client *client);
+
+        // Command Handlers
+        void _handlePass(Client *client, const Command &cmd);
+        void _handleNick(Client *client, const Command &cmd);
+        void _handleUser(Client *client, const Command &cmd);
 };
 
 

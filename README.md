@@ -1,4 +1,34 @@
-# ft_irc
+# ft_irc 
+
+Hola! Este archivo documenta nuestro viaje construyendo un servidor IRC desde cero (C++ 98).
+
+## 1. El Flujo de Datos 
+Hemos aprendido que internet no envía "mensajes", envía un flujo continuo de bytes (`stream`).
+- **Problema:** A veces recibimos medio mensaje, o dos mensajes juntos.
+- **Solución:** Implementamos un buffer  en cada Cliente.
+  - Guardamos todo lo que llega con `appendBuffer()`.
+  - Usamos un bucle `while` para buscar saltos de línea (`\n`).
+  - Cortamos y procesamos cada línea completa, guardando el resto para después.
+
+## 2. El Parser
+Una vez tenemos una línea limpia, tenemos que entenderla. El protocolo IRC es texto puro.
+- **Estructura:** `[Prefijo] COMANDO [Argumentos...] [:Mensaje final]`
+- **Logro:** Hemos creado un parser que ignora mayúsculas/minúsculas en el comando y separa prefijos y argumentos correctamente.
+
+## 3. El Despachador 
+¿Cómo ejecutamos código diferente para cada comando sin un `if/else` infinito?
+- **Solución:** Usamos un `std::map<std::string, FunctionPointer>`.
+- Es como un directorio telefónico: Buscamos "NICK" y nos da la dirección de la función `_handleNick`.
+- Eficiente, limpio y escalable.
+
+---
+## Compilación y Ejecución
+```bash
+make
+./ircserv <port> <password>
+```
+Conéctate con `nc localhost <port>` y prueba a escribir `PASS tu_pass`, `NICK sergio`, etc.
+
 
 
 

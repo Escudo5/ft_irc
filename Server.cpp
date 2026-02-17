@@ -27,7 +27,10 @@ Server::Server(int port, std::string password) : _port(port), _password(password
     server_pfd.fd = _server_fd;
     server_pfd.events = POLLIN;
     server_pfd.revents = 0;
+    server_pfd.revents = 0;
     _fds.push_back(server_pfd);
+
+    _initCommands();
 }
 
 
@@ -50,7 +53,6 @@ void Server::start()
         }
     }
 }
-
 
 void Server::_acceptNewConnection()
 {
@@ -89,10 +91,32 @@ void Server::_receiveData(int fd)
         buffer[bytes_read] = '\0';
         _clients[fd]->appendBuffer(buffer);
 
-        if (_clients[fd]->getBuffer().find("\n") != std::string::npos)
+        while (_clients[fd]->getBuffer().find("\n") != std::string::npos)
         {
-            std::string line = 
-            _parseCommand(_clients[fd]);
+            std::string buffer = _clients[fd]->getBuffer();
+            size_t pos = buffer.find("\n");
+            
+            // Extract the line (command)
+            std::string line = buffer.substr(0, pos);
+            
+            // Remove the processed line from the buffer
+            // pos + 1 to include the '\n' character
+            std::string remaining = buffer.substr(pos + 1);
+            _clients[fd]->setBuffer(remaining);
+
+            // Handle carriage return if present (e.g., from telnet)
+            if (!line.empty() && line[line.length() - 1] == '\r')
+                line.erase(line.length() - 1);
+
+            if (!line.empty())
+            {
+                Command cmd;
+                if (_parseCommand(line, cmd))
+                {
+                   std::cout << "CMD: " << cmd.name << " ARGS: " << cmd.params.size() << std::endl;
+                   // _executeCommand(cmd, _clients[fd]); // TODO: Implement dispatch
+                }
+            }
         }
     }
 }
@@ -130,7 +154,7 @@ bool Server::_parseCommand(const std::string &line, Command &cmd)
         return false;
 
     std::string head;
-    size_t pos = line.find(" :"); //separamos ":" antes de tokenizar
+    size_t pos = line.find(" :");
     if (pos != std::string::npos)
     {
         head = line.substr(0, pos);
@@ -143,22 +167,37 @@ bool Server::_parseCommand(const std::string &line, Command &cmd)
     }
 
     std::stringstream ss(head);
-    std::vector<std::string> tokens;
     std::string token;
-
-    while (ss >> token)
+    
+    // First token logic (prefix vs command)
+    if (ss >> token)
     {
-        tokens.push_back(token);
+        if (token[0] == ':')
+        {
+            cmd.prefix = token.substr(1); // Remove ':'
+            if (ss >> token)
+                cmd.name = token;
+            else
+                return false; // Prefix but no command?
+        }
+        else
+        {
+            cmd.prefix = "";
+            cmd.name = token;
+        }
     }
-
-    if (tokens.empty())
+    else
         return false;
 
-    cmd.name = tokens[0];
-    if (tokens.size() == 1)
-        cmd.params.clear();
-    else 
-        cmd.params = std::vector<std::string>(tokens.begin() + 1, tokens.end());
+    // Uppercase command name (NICK == nick)
+    for (size_t i = 0; i < cmd.name.length(); i++)
+        cmd.name[i] = std::toupper(cmd.name[i]);
+
+    cmd.params.clear();
+    while (ss >> token)
+    {
+        cmd.params.push_back(token);
+    }
     return true;
 }  
 
@@ -169,7 +208,39 @@ bool Server::_parseCommand(const std::string &line, Command &cmd)
 
 
 
+void Server::_initCommands()
+{
+    _commands["PASS"] = &Server::_handlePass;
+    _commands["NICK"] = &Server::_handleNick;
+    _commands["USER"] = &Server::_handleUser;
+}
 
+void Server::_executeCommand(const Command &cmd, Client *client)
+{
+    if (_commands.count(cmd.name))
+    {
+        (this->*_commands[cmd.name])(client, cmd);
+    }
+    else
+    {
+        std::cout << "Comando no encontrado: " << cmd.name << std::endl;
+    }
+}
+
+void Server::_handlePass(Client *client, const Command &cmd)
+{
+    std::cout << "Manejando PASS para FD " << client->getFd() << std::endl;
+}
+
+void Server::_handleNick(Client *client, const Command &cmd)
+{
+    std::cout << "Manejando NICK para FD " << client->getFd() << std::endl;
+}
+
+void Server::_handleUser(Client *client, const Command &cmd)
+{
+    std::cout << "Manejando USER para FD " << client->getFd() << std::endl;
+}
 
 
 
