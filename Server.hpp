@@ -14,6 +14,13 @@
 
 
 
+
+struct Command
+{
+    std::string name; //PASS, NICK ...
+    std::vector<std::string> params; //args
+    std::string trailing; //"holamundo" lo q va despues de ":"
+}
 class Client;
 class Server
 {
@@ -42,7 +49,7 @@ class Server
         void _acceptNewConnection();
         void _receiveData(int fd);
         void _handleDisconnection(int fd);
-        void _processCommand(Client *client);
+        bool _parseCommand(const std::string &line, Command &cmd);
 };
 
 

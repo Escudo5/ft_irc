@@ -91,7 +91,8 @@ void Server::_receiveData(int fd)
 
         if (_clients[fd]->getBuffer().find("\n") != std::string::npos)
         {
-            _processCommand(_clients[fd]);
+            std::string line = 
+            _parseCommand(_clients[fd]);
         }
     }
 }
@@ -121,44 +122,115 @@ void Server::_handleDisconnection(int fd)
 //actualizamos el buffer con lo que sobra
 
 
-void Server::_processCommand(Client *client)
+bool Server::_parseCommand(const std::string &line, Command &cmd)
 {
-    std::string raw_data = client->getBuffer();
-    size_t pos;
+    if (line.empty())
+        return false;
+    if (!line.find_first_not_of(" \t"))
+        return false;
 
-    while ((pos = raw_data.find("\n")) != std::string::npos)
+    std::string head;
+    size_t pos = line.find(" :"); //separamos ":" antes de tokenizar
+    if (pos != std::string::npos)
     {
-        std::string command = raw_data.substr(0, pos);
-        if (!command.empty() && command[command.size() -1] == '\r')
-            command.erase(command.size() - 1);
-        std::cout << "Ejecutando: " << command << std::endl;
-
-
-        //meter logica de comandos
-        std::stringstream ss(command);
-        std::string tokens;
-        std::string args;
-        
-        ss >> tokens;
-        if (tokens == "PASS" && ss >> args)
-        {
-            if (args == _password)
-                setAuthenticated(true)
-        }
-            //seguir extrayendo contraseña
-        if (tokens == "NICK")
-        {
-            
-        }
-
-        if (ss >> args)
-        raw_data.erase(0, pos + 1);
-        //añadir funcion setBuffer.
-        client->setBuffer(raw_data);
+        head = line.substr(0, pos);
+        cmd.trailing = line.substr(pos + 2);
     }
-}
+    else
+    {
+        head = line;
+        cmd.trailing = "";
+    }
+
+    std::stringstream ss(head);
+    std::vector<std::string> tokens;
+    std::string token;
+
+    while (ss >> token)
+    {
+        tokens.push_back(token);
+    }
+
+    if (tokens.empty())
+        return false;
+
+    cmd.name = tokens[0];
+    if (tokens.size() == 1)
+        cmd.params.clear();
+    else 
+        cmd.params = std::vector<std::string>(tokens.begin() + 1, tokens.end());
+    return true;
+}  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 //gestionar comandos que usen ":"
 //comandos cona rgumentos vacios
 // guardar argumentos en estructura de cliente
+std::string raw_data = client->getBuffer();
+size_t pos;
+
+while ((pos = raw_data.find("\n")) != std::string::npos)
+{
+    std::string command = raw_data.substr(0, pos);
+    if (!command.empty() && command[command.size() -1] == '\r')
+        command.erase(command.size() - 1);
+    std::cout << "Ejecutando: " << command << std::endl;
+
+
+    //meter logica de comandos
+    std::stringstream ss(command);
+    std::string tokens;
+    std::string args;
+    
+    ss >> tokens;
+    if (tokens == "PASS" && ss >> args)
+    {
+        if (args == _password)
+            setAuthenticated(true)
+    }
+        //seguir extrayendo contraseña
+    if (tokens == "NICK")
+    {
+        
+    }
+
+    if (ss >> args)
+    raw_data.erase(0, pos + 1);
+    //añadir funcion setBuffer.
+    client->setBuffer(raw_data);
+}
+
+
+
+
+
+
+
+
+
+
+
