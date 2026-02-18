@@ -50,7 +50,6 @@ class Server
         void _acceptNewConnection();
         void _receiveData(int fd);
         void _handleDisconnection(int fd);
-        void _handleDisconnection(int fd);
         bool _parseCommand(const std::string &line, Command &cmd);
 
         // -- Execution Logic --

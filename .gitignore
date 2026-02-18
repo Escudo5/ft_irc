@@ -1,0 +1,5 @@
+.github/agents/
+.vscode/
+*.o
+*.d
+ircserv

@@ -13,3 +13,9 @@ Client* Client::setBuffer(std::string raw_data)
     _buffer = raw_data;
     return this;
 }
+
+
+void Client::setAuthenticated(bool status)
+{
+    _isRegistered = status;
+}

@@ -114,7 +114,7 @@ void Server::_receiveData(int fd)
                 if (_parseCommand(line, cmd))
                 {
                    std::cout << "CMD: " << cmd.name << " ARGS: " << cmd.params.size() << std::endl;
-                   // _executeCommand(cmd, _clients[fd]); // TODO: Implement dispatch
+                    _executeCommand(cmd, _clients[fd]);
                 }
             }
         }
@@ -229,6 +229,20 @@ void Server::_executeCommand(const Command &cmd, Client *client)
 
 void Server::_handlePass(Client *client, const Command &cmd)
 {
+    if (cmd.params.empty())
+    {
+        std::cout << "Error: PASS command requires a password" << std::endl;
+        return;
+    }
+    else if (cmd.params[0] == _password)
+    {
+        client->setAuthenticated(true);
+        std::cout << "Usuario autenticado" << std::endl;
+    }
+    else
+    {
+        std::cout << "Error: Invalid password" << std::endl;
+    }
     std::cout << "Manejando PASS para FD " << client->getFd() << std::endl;
 }
 
@@ -257,43 +271,6 @@ void Server::_handleUser(Client *client, const Command &cmd)
 
 
 
-
-//gestionar comandos que usen ":"
-//comandos cona rgumentos vacios
-// guardar argumentos en estructura de cliente
-std::string raw_data = client->getBuffer();
-size_t pos;
-
-while ((pos = raw_data.find("\n")) != std::string::npos)
-{
-    std::string command = raw_data.substr(0, pos);
-    if (!command.empty() && command[command.size() -1] == '\r')
-        command.erase(command.size() - 1);
-    std::cout << "Ejecutando: " << command << std::endl;
-
-
-    //meter logica de comandos
-    std::stringstream ss(command);
-    std::string tokens;
-    std::string args;
-    
-    ss >> tokens;
-    if (tokens == "PASS" && ss >> args)
-    {
-        if (args == _password)
-            setAuthenticated(true)
-    }
-        //seguir extrayendo contraseña
-    if (tokens == "NICK")
-    {
-        
-    }
-
-    if (ss >> args)
-    raw_data.erase(0, pos + 1);
-    //añadir funcion setBuffer.
-    client->setBuffer(raw_data);
-}
 
 
 
