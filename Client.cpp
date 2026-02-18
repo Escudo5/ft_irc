@@ -19,3 +19,14 @@ void Client::setAuthenticated(bool status)
 {
     _isRegistered = status;
 }
+
+bool Client::isAuthenticated()const
+{
+    return _isRegistered;
+}
+
+void Client::setNick(std::string nickname)
+{
+    _nickname = nickname;
+}
+

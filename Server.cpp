@@ -248,6 +248,25 @@ void Server::_handlePass(Client *client, const Command &cmd)
 
 void Server::_handleNick(Client *client, const Command &cmd)
 {
+    if (!client->isAuthenticated())
+    {
+        std::cout << "Error: NICK command requires authentication" << std::endl;
+        return;
+    }
+    if (cmd.params.empty())
+    {
+        std::cout << "Error: NICK command requires a nickname" << std::endl;
+        return;
+    }
+    for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end();it++)
+    {
+        if (it->second->getNick() == cmd.params[0])
+        {
+            std::cout << "Error: NICK is already taken" << std::endl;
+            return;
+        }
+    }
+    client->setNick(cmd.params[0]);
     std::cout << "Manejando NICK para FD " << client->getFd() << std::endl;
 }
 
