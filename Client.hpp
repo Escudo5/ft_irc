@@ -16,6 +16,8 @@ class Client
         void clearBuffer() {_buffer.clear();}
         Client* setBuffer(std::string raw_data);
         void setNick(std::string nickname);
+        void setUsername(std::string username);
+        void setRealname(std::string realname);
         void setAuthenticated(bool status);
         bool isAuthenticated()const;
 
@@ -30,6 +32,7 @@ class Client
     //identificacion de IRC
         std::string _nickname;
         std::string _username;
+        std::string _realname;
         bool _isRegistered;
         bool _isAdmin;
 

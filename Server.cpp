@@ -260,6 +260,8 @@ void Server::_handleNick(Client *client, const Command &cmd)
     }
     for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end();it++)
     {
+        if (it->second == client)
+            continue;
         if (it->second->getNick() == cmd.params[0])
         {
             std::cout << "Error: NICK is already taken" << std::endl;
@@ -272,6 +274,21 @@ void Server::_handleNick(Client *client, const Command &cmd)
 
 void Server::_handleUser(Client *client, const Command &cmd)
 {
+    if (!client->isAuthenticated())
+    {
+        std::cout << "Error: USER command requires authentication" << std::endl;
+        return;
+    }
+    if (cmd.params.empty())
+    {
+        std::cout << "Error: USER command requires a username" << std::endl;
+        return;
+    }
+    client->setUsername(cmd.params[0]);
+    if (cmd.params.size() > 1)
+    {
+        client->setRealname(cmd.trailing);
+    }
     std::cout << "Manejando USER para FD " << client->getFd() << std::endl;
 }
 
